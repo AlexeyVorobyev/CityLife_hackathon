@@ -1,47 +1,45 @@
 import React from "react";
 import {useForm} from "react-hook-form";
-import {CustomInput} from "../formUtils/CustomInput/CustomInput";
 import {FormProvider} from "react-hook-form";
-import {StyledButton} from "../StyledComponents/StyledButton";
-import {Grid, Typography} from "@mui/material";
-import {useNavigate} from "react-router-dom";
+import {Button, Divider, Grid, Typography} from "@mui/material";
+import {NavLink} from "react-router-dom";
+import {CustomInput} from "../formUtils/CustomInput/CustomInput";
+import {theme} from "../Theme/customColors";
 
 
 const SignIn:React.FC<any> = () => {
 
     const methods = useForm()
     const {handleSubmit, formState: {errors}} = methods
-    const navigate = useNavigate()
 
     const onSubmit = (data:any) => {
         console.log(data)
-        navigate('/')
     }
 
     return (
         <FormProvider {...methods} >
-            <Grid container direction={"column"} rowGap={2}>
+            <Grid container direction={"column"} rowGap={2} justifyContent={'center'}>
                 <Grid item>
-                    <CustomInput name={'login'} required={true} label={'LogIn'}
-                                 error={Boolean(errors.login)}/>
+                    <CustomInput name={'email'} required label={'Почта'}
+                                 error={Boolean(errors.login)} errorText={errors.login?.message as string | undefined}/>
                 </Grid>
                 <Grid item>
-                    <CustomInput name={'password'} required={true} label={'Password'}
-                                 error={Boolean(errors.password)}/>
+                    <CustomInput name={'password'} required label={'Пароль'} hidden
+                                 error={Boolean(errors.password)} errorText={errors.password?.message as string | undefined}/>
                 </Grid>
-                <Grid container columnSpacing={2}>
-                    <Grid xs={6} item>
-                        <StyledButton color={'rgb(255, 85, 85)'} hoveredColor={'rgb(266, 110, 110)'}
-                                      onClick={() => {
-                                          navigate('../sign-up')
-                                      }}>
-                            <Typography color={"white"} variant={'subtitle1'}>SignUp if you dont have account</Typography>
-                        </StyledButton>
-                    </Grid>
-                    <Grid xs={6} item>
-                        <StyledButton color={'rgb(255, 85, 85)'} hoveredColor={'rgb(266, 110, 110)'} onClick={handleSubmit(onSubmit)}>
-                            <Typography color={"white"} variant={'subtitle1'}>SignIn</Typography>
-                        </StyledButton>
+                <Grid item alignSelf={'center'}>
+                    <Button
+                        size={'large'}
+                        variant="contained"
+                        onClick={handleSubmit(onSubmit)}>ВОЙТИ</Button>
+                </Grid>
+                <Divider orientation={"horizontal"} variant={'middle'}>
+                    <Typography variant={'subtitle1'} textAlign={'center'}>ИЛИ</Typography>
+                </Divider>
+                <Grid container columnSpacing={2} justifyContent={"center"}>
+                    <Grid xs={8} item>
+                        <Typography variant={'subtitle1'} textAlign={'center'}>
+                            <NavLink to={'../sign-up'} style={{textDecoration:'none',color:theme.palette.primary.main}}>Зарегестрируйтесь</NavLink>,<br/> если у вас нет аккаунта</Typography>
                     </Grid>
                 </Grid>
             </Grid>

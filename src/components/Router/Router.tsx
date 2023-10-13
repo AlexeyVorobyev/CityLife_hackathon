@@ -1,6 +1,5 @@
 import {Navigate, Route, Routes} from "react-router-dom";
 import {AuthPageLayout} from "../AuthPage/AuthPageLayout";
-import {BasePagePlayground} from "../BasePagePlayground/BasePagePlayground";
 import React from "react";
 import {useLoginStatus} from "../functions/useLoginStatus";
 import {SignIn} from "../AuthPage/SignIn";
@@ -15,9 +14,7 @@ const Router:React.FC = () => {
             {isAuth ? (
                 <Routes>
                     <Route path={'/'} element={<Navigate to="/app/landing"/>} />
-                    <Route path={'/app'} element={<BasePagePlayground/>}>
-                        <Route path={'landing'} element={<LandingPage/>}/>
-                    </Route>
+                    <Route path={'/landing'} element={<LandingPage/>}/>
                     <Route path='*' element={<Navigate to='/' />} />
                 </Routes>
             ) : (
