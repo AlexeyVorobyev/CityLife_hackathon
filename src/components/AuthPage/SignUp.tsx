@@ -6,7 +6,7 @@ import {Button, Divider, Grid, Typography} from "@mui/material";
 import {NavLink} from "react-router-dom";
 import {validEmail, validPassword} from "../formUtils/Regex/regex";
 import {theme} from "../Theme/customColors";
-import {SignUpPayload} from "../../redux/api/types/auth";
+import {useAuthSignUpMutation} from "../../redux/api/auth.api";
 
 
 const SignUp:React.FC<any> = () => {
@@ -14,10 +14,12 @@ const SignUp:React.FC<any> = () => {
     const methods = useForm()
     const {handleSubmit, watch, formState: {errors}} = methods
     const passwordWatch = watch('password')
+    const [authSignUp] = useAuthSignUpMutation()
 
     const onSubmit = (data:any) => {
         console.log(data)
-        data.redirectUrl = 'someurl'
+        data.redirectUrl = `${import.meta.env.VITE_APP_API_HOST}/handleRedirect`
+        authSignUp(data)
     }
 
     return (

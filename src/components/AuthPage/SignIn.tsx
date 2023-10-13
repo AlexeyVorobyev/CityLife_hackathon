@@ -2,18 +2,35 @@ import React from "react";
 import {useForm} from "react-hook-form";
 import {FormProvider} from "react-hook-form";
 import {Button, Divider, Grid, Typography} from "@mui/material";
-import {NavLink} from "react-router-dom";
+import {NavLink, useNavigate} from "react-router-dom";
 import {CustomInput} from "../formUtils/CustomInput/CustomInput";
 import {theme} from "../Theme/customColors";
+import {useAuthLoginMutation} from "../../redux/api/auth.api";
+import {getTokens} from "../functions/getAuthToken";
 
 
 const SignIn:React.FC<any> = () => {
 
     const methods = useForm()
     const {handleSubmit, formState: {errors}} = methods
+    const [authLogin] = useAuthLoginMutation()
+    const navigate = useNavigate()
 
     const onSubmit = (data:any) => {
         console.log(data)
+        const promise = authLogin(data)
+        promise
+            .then((response) => {
+                if (response.hasOwnProperty('data')) {
+                    // @ts-ignore
+                    localStorage.setItem('accessToken',response.data.response.accessToken)
+                    // @ts-ignore
+                    localStorage.setItem('refreshToken',response.data.response.refreshToken)
+                    // @ts-ignore
+                    localStorage.setItem('expiry',response.data.response.expiry)
+                    navigate('/')
+                }
+            })
     }
 
     return (

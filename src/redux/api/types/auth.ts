@@ -9,7 +9,7 @@ export const SignUpResponseCodeDecrypt = ['ОК','почта пуста или e
 export interface SignUpPayload {
     email: string,
     password: string,
-    redirectUrl: string
+    redirectUrl: string // с query параметрами
 }
 
 export interface RefreshResponse {
@@ -32,7 +32,7 @@ export interface LoginResponse {
     response: {
         accessToken: string,
         refreshToken: string,
-        expiry: 0
+        expiry: number // timeStamp
     },
     messages: any[],
     code: 0 | 1 | 2

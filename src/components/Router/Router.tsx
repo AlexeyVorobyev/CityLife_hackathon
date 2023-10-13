@@ -5,28 +5,32 @@ import {useLoginStatus} from "../functions/useLoginStatus";
 import {SignIn} from "../AuthPage/SignIn";
 import {SignUp} from "../AuthPage/SignUp";
 import {LandingPage} from "../LandingPage/LandingPage";
+import {HandleRedirectPage} from "../HandleRedirectPage/handleRedirectPage";
 
 const Router:React.FC = () => {
     const isAuth = useLoginStatus()
 
     return (
         <>
+            <Routes>
+                <Route path={'/handleRedirect'} element={<HandleRedirectPage/>}/>
             {isAuth ? (
-                <Routes>
+                <>
                     <Route path={'/'} element={<Navigate to="/app/landing"/>} />
                     <Route path={'/landing'} element={<LandingPage/>}/>
                     <Route path='*' element={<Navigate to='/' />} />
-                </Routes>
+                </>
             ) : (
-                <Routes>
+                <>
                     <Route path={'/'} element={<Navigate to="/auth/sign-in"/>} />
                     <Route path={'/auth'} element={<AuthPageLayout/>}>
                         <Route path={'sign-in'} element={<SignIn/>}/>
                         <Route path={'sign-up'} element={<SignUp/>}/>
                     </Route>
                     <Route path='*' element={<Navigate to='/' />} />
-                </Routes>
+                </>
             )}
+            </Routes>
         </>
     )
 }

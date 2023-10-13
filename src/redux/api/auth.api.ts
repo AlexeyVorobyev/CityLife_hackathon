@@ -31,7 +31,7 @@ export const templateApi = api.injectEndpoints({
         }),
         authLogin: builder.mutation<LoginResponse,LoginPayload>({
             query: (body) => ({
-                url:`/auth/refresh`,
+                url:`/auth/login`,
                 method: 'POST',
                 headers: {
                     'Content-Type':'application/json'
@@ -44,5 +44,7 @@ export const templateApi = api.injectEndpoints({
 })
 
 export const {
-
+    useAuthLoginMutation,
+    useAuthRefreshMutation,
+    useAuthSignUpMutation
 } = templateApi
