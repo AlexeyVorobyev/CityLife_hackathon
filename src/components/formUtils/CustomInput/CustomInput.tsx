@@ -35,7 +35,7 @@ const CustomInput:React.FC<Props> = ({
     return (
         <Controller
             name={name}
-            defaultValue={defaultValue || null}
+            defaultValue={defaultValue}
             control={control}
             rules={{validate:{
                     required:required ? (value:string) => value?.length > 0 || 'обязательное поле' : () => true,

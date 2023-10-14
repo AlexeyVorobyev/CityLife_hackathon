@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {CSSProperties, useEffect, useState} from "react";
 import {Controller, useFormContext} from "react-hook-form";
 import {UseLazyQuery} from "@reduxjs/toolkit/dist/query/react/buildHooks";
 import {debounce} from "../../functions/debounce";
@@ -17,6 +17,7 @@ interface Props {
         optionsPath: [string]
     }
     multiple?: boolean
+    style?:CSSProperties
 }
 export const CustomServerAutoComplete:React.FC<Props> =
     ({
@@ -27,7 +28,8 @@ export const CustomServerAutoComplete:React.FC<Props> =
         perPage = 5,
         required = false,
         optionsConfig,
-        multiple = false
+        multiple = false,
+        style
     }) => {
 
     const { control } = useFormContext()
@@ -69,6 +71,7 @@ export const CustomServerAutoComplete:React.FC<Props> =
                     options={options}
                     required={required}
                     multiple={multiple}
+                    style={style}
                 />)
             }
         />

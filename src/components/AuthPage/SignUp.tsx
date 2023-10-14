@@ -3,7 +3,7 @@ import {useForm} from "react-hook-form";
 import {CustomInput} from "../formUtils/CustomInput/CustomInput";
 import {FormProvider} from "react-hook-form";
 import {Button, Divider, Grid, Typography} from "@mui/material";
-import {NavLink} from "react-router-dom";
+import {NavLink, useNavigate} from "react-router-dom";
 import {validEmail, validPassword} from "../formUtils/Regex/regex";
 import {theme} from "../Theme/customColors";
 import {useAuthSignUpMutation} from "../../redux/api/auth.api";
@@ -15,11 +15,18 @@ const SignUp:React.FC<any> = () => {
     const {handleSubmit, watch, formState: {errors}} = methods
     const passwordWatch = watch('password')
     const [authSignUp] = useAuthSignUpMutation()
+    const navigate = useNavigate()
 
     const onSubmit = (data:any) => {
         console.log(data)
-        data.redirectUrl = `${import.meta.env.VITE_APP_API_HOST}/handleRedirect`
+        data.redirectUrl = `${import.meta.env.VITE_APP_FRONT_HOST}/handleRedirect`
+        delete data.passwordCheck
+
         authSignUp(data)
+            .then((response) => {
+                console.log(response)
+                navigate('../await-mail')
+            })
     }
 
     return (
@@ -61,7 +68,7 @@ const SignUp:React.FC<any> = () => {
                 <Grid container columnSpacing={2} justifyContent={"center"}>
                     <Grid xs={8} item>
                         <Typography variant={'subtitle1'} textAlign={'center'}>
-                            <NavLink to={'../sign-in'} style={{textDecoration:'none', color:theme.palette.primary.main}}>Войдите</NavLink>,<br/> если у вас есть аккаунт</Typography>
+                            Уже зарегестрирваны? <NavLink to={'../sign-in'} style={{textDecoration:'none', color:theme.palette.primary.main}}>Войдите</NavLink></Typography>
                     </Grid>
                 </Grid>
             </Grid>

@@ -35,10 +35,10 @@ export interface LoginResponse {
         expiry: number // timeStamp
     },
     messages: any[],
-    code: 0 | 1 | 2
+    code: 0 | 1 | 2 | 3
 }
 
-export const LoginResponseCodeDecrypt = ['ОК','Токен не найден в БД','Время жизни токена истекло']
+export const LoginResponseCodeDecrypt = ['ОК','почта пуста или email не почта','юзер не найден','пароль не совпадает']
 
 export interface LoginPayload {
     email: string,

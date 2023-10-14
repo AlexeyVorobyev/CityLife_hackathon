@@ -1,16 +1,83 @@
-import React from "react";
-import {Paper} from "@mui/material";
-import {CustomDataTable} from "../formUtils/CustomDataTable/CustomDataTable";
+import React, {useState} from "react";
+import {MapRender} from "../MainMap/MapRender";
+import {Box, Button, IconButton, Paper, Popover, Stack, Typography} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import {useLoginStatus} from "../functions/useLoginStatus";
 
 const LandingPage:React.FC = () => {
+
+    const deleteButtonId = 'del'
+    const [openButtonPopover,setOpenButtonPopover] = useState<boolean>(false)
+    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+        setOpenButtonPopover(!openButtonPopover)
+    };
+
     return (
-        <Paper elevation={10} color={'#FFF'} sx={{
-            width:'75%',
-            height:'75%',
-            display:'flex'
+        <Box sx={{
+            height:'100vh',
+            width:'100vw',
+            overflow:'hidden'
         }}>
-            <CustomDataTable/>
-        </Paper>
+            <Box sx={{
+                background: '#FFF',
+                boxShadow: '0px 0px 7px 3px rgba(0, 0, 0, 0.25)',
+                display:'flex',
+                padding:'20px 80px 20px 120px',
+                width:'100%',
+                justifyContent:'end',
+                boxSizing:'border-box',
+                height:'80px',
+                position:'relative',
+                zIndex:10000
+            }}>
+                <Stack direction={'row'} alignItems={'center'} spacing={1}>
+                    <IconButton>
+                        <AccountCircleIcon/>
+                    </IconButton>
+                    <Typography variant={'subtitle1'} sx={{cursor:'pointer'}}>Личный кабинет</Typography>
+                    <IconButton onClick={handleClick}>
+                        <CloseIcon/>
+                    </IconButton>
+                    <Popover
+                        open={openButtonPopover}
+                        anchorEl={anchorEl}
+                        sx={{
+                            zIndex:100000
+                    }}
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'right',
+                        }}
+                    >
+                        <Paper elevation={3} sx={{padding:'10px'}}>
+                            <Stack direction={'column'} spacing={1}>
+                                <Typography>Выйти из аккаунта?</Typography>
+                                <Stack direction={'row'} spacing={'10px'}>
+                                    <Button size={'large'}
+                                            onClick={() => {
+                                                localStorage.clear()
+                                                useLoginStatus()
+                                            }
+                                            }
+                                            variant="contained">
+                                        Да
+                                    </Button>
+                                    <Button size={'large'}
+                                            onClick={() => setOpenButtonPopover(false)}
+                                            variant="contained">
+                                        Нет
+                                    </Button>
+                                </Stack>
+                            </Stack>
+                        </Paper>
+                    </Popover>
+                </Stack>
+            </Box>
+            <MapRender/>
+        </Box>
     )
 }
 

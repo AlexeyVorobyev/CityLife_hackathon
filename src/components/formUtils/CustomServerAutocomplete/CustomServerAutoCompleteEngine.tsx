@@ -1,4 +1,4 @@
-import React from "react";
+import React, {CSSProperties} from "react";
 import {Autocomplete, Box, FormControl, TextField} from "@mui/material";
 
 export interface Option{
@@ -15,6 +15,8 @@ interface Props {
     options:Array<Option> | null
     required:boolean
     multiple:boolean
+    style?:CSSProperties
+
 }
 export const CustomServerAutoCompleteEngine:React.FC<Props> =
     ({
@@ -25,13 +27,15 @@ export const CustomServerAutoCompleteEngine:React.FC<Props> =
         label,
         options,
         required,
-        multiple
+        multiple,
+        style
      }) => {
 
         return (
-            <FormControl fullWidth={true}>
+            <FormControl fullWidth>
                 <Autocomplete
-                    freeSolo={true}
+                    style={style}
+                    freeSolo
                     multiple={multiple}
                     options={options || []}
                     autoHighlight
