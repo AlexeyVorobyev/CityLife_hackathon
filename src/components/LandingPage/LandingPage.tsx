@@ -4,10 +4,10 @@ import {Box, Button, IconButton, Paper, Popover, Stack, Typography} from "@mui/m
 import CloseIcon from "@mui/icons-material/Close";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import {useLoginStatus} from "../functions/useLoginStatus";
+import {useNavigate} from "react-router-dom";
 
 const LandingPage:React.FC = () => {
 
-    const deleteButtonId = 'del'
     const [openButtonPopover,setOpenButtonPopover] = useState<boolean>(false)
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -60,6 +60,8 @@ const LandingPage:React.FC = () => {
                                             onClick={() => {
                                                 localStorage.clear()
                                                 useLoginStatus()
+                                                const navigate = useNavigate()
+                                                navigate('/')
                                             }
                                             }
                                             variant="contained">

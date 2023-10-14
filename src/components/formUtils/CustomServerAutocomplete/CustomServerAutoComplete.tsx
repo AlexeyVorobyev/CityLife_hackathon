@@ -14,7 +14,7 @@ interface Props {
     required?:boolean
     optionsConfig?: {
         optionsReadFunction: (option:any) => Option
-        optionsPath: [string]
+        optionsPath: string[]
     }
     multiple?: boolean
     style?:CSSProperties
@@ -39,11 +39,12 @@ export const CustomServerAutoComplete:React.FC<Props> =
     const debouncedLazyGetQuery = debounce(lazyGetQuery,350)
 
     useEffect(() => {
-        debouncedLazyGetQuery({dataBasePage:1, defaultPageSize:perPage, searchPattern: inputValue})
+        debouncedLazyGetQuery({page:0, size:perPage, name: inputValue})
     }, [inputValue])
 
     useEffect(() => {
         if (result.status !== 'fulfilled' || !result.currentData) return
+        console.log(result.currentData)
         if (optionsConfig) {
             let options = result.currentData as any
             optionsConfig.optionsPath.map((path) => options = options[path])

@@ -35,24 +35,31 @@ export const CustomServerAutoCompleteEngine:React.FC<Props> =
             <FormControl fullWidth>
                 <Autocomplete
                     style={style}
-                    freeSolo
                     multiple={multiple}
                     options={options || []}
                     autoHighlight
                     filterOptions={(x) => x}
                     value={value || null}
-                    onChange={(newValue) => {
-                        onChange(newValue)
+                    // @ts-ignore
+                    onChange={(event: any, newValue) => {
+                        onChange(newValue);
                     }}
                     inputValue={inputValue}
-                    onInputChange={(newInputValue) => {
-                        setInputValue(newInputValue)
+                    // @ts-ignore
+                    getOptionLabel={(value:Option) => {
+                        return value.name
                     }}
-                    renderOption={(props, option) => (
-                        <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props} key={option.id}>
-                            {option.name}
-                        </Box>
-                    )}
+                    // @ts-ignore
+                    onInputChange={(event,value) => {
+                        setInputValue(value)
+                    }}
+                    renderOption={(props, option) => {
+                        return (
+                            <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props} key={option.id}>
+                                {option.name}
+                            </Box>)
+                        }
+                    }
                     renderInput={(params) => (
                         <TextField
                             {...params}

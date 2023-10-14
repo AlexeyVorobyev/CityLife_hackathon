@@ -1,7 +1,7 @@
-import {MapContainer, TileLayer, ZoomControl} from 'react-leaflet'
+import {FeatureGroup, MapContainer, Polygon, TileLayer, useMap, ZoomControl} from 'react-leaflet'
 import {FormProvider, useForm} from "react-hook-form";
-import {Box, Grid, IconButton, Stack, Typography} from "@mui/material";
-import React, {useEffect, useLayoutEffect, useReducer, useState} from "react";
+import {Box, Grid, IconButton, Paper, Stack, Typography} from "@mui/material";
+import React, {useEffect, useLayoutEffect, useMemo, useReducer, useState} from "react";
 import {DistrictPolygon} from "./DistrictPolygon";
 import {CustomServerAutoComplete} from "../formUtils/CustomServerAutocomplete/CustomServerAutoComplete";
 import CloseIcon from '@mui/icons-material/Close';
@@ -12,26 +12,68 @@ import {MapDrawPolygon} from "./MapDrawPolygon";
 import {theme} from "../Theme/customColors";
 import {Menu} from "./SideBar";
 import {sideBarConfig} from "./SideBarConfig";
+import {useLazyGetRegionsQuery} from "../../redux/api/map.api";
+import {useNavigate} from "react-router-dom";
+import {InfoPanel} from "./InfoPanel";
 interface Props {
 
 }
 
 const MapRender:React.FC<Props> = () => {
     const methods = useForm()
-    const {watch} = methods
+    const {watch, setValue} = methods
     const watchPolygonAutocomplete = watch('polygon')
     const watchPolygonDraw = watch('drawPolygon')
-    const [loadedPolygon, setLoadedPolygon] = useState<boolean>(false)
-    const [isPolygonChosen,setIsPolygonChosen] = useState<boolean>(true)
+    const [isPolygonChosen,setIsPolygonChosen] = useState<boolean>(false)
     const [openNav,setOpenNav] = useState<boolean>(false)
     const [rearInfoPanel, setRearInfoPanel] = useState<boolean>(true)
-    const [currentMenuItem,setCurrentMenuItem] = useState<string>('')
+    const [currentMenuItem,setCurrentMenuItem] = useState<string | null>(null)
+    const [kostyl,setKostyl] = useState<boolean>(true)
+    const navigate = useNavigate()
+    const [setPolygon,setSetPolygon] = useState<any>(null)
 
 
     useEffect(() => {
-        setLoadedPolygon(watchPolygonAutocomplete)
-        setIsPolygonChosen(isPolygonChosen)
-    },[watchPolygonAutocomplete])
+        if (currentMenuItem) {
+            setRearInfoPanel(true)
+        }
+        else {
+            setRearInfoPanel(false)
+        }
+    },[currentMenuItem])
+
+    useEffect(() => {
+        console.log(kostyl)
+        if (watchPolygonDraw && kostyl) {
+            setValue('polygon',{id:watchPolygonDraw.id,name:'Кастомный полигон'})
+            setKostyl(!kostyl)
+        }
+        else if (!watchPolygonAutocomplete && watchPolygonDraw) {
+            setValue('polygon',undefined)
+            navigate('/')
+        }
+    },[watchPolygonDraw,watchPolygonAutocomplete])
+
+    useEffect(() => {
+        if (watchPolygonDraw || watchPolygonAutocomplete) {
+            setIsPolygonChosen(true)
+            setOpenNav(true)
+        }
+        if (watchPolygonAutocomplete) {
+            setSetPolygon(watchPolygonAutocomplete.points)
+        }
+        else {
+            setIsPolygonChosen(false)
+            setOpenNav(false)
+            setRearInfoPanel(false)
+        }
+    },[watchPolygonAutocomplete,watchPolygonDraw])
+
+    const SetZoom = ({coords}:{coords:any}) => {
+        const map = useMap()
+        if (coords) map.fitBounds(coords)
+        return null
+    }
 
 
     return (
@@ -52,8 +94,11 @@ const MapRender:React.FC<Props> = () => {
                     marginLeft:'20px',
                     alignItems:'center'
                 }}>
-                    {/*<Typography >"SUCK MY DICK"</Typography>*/}
-                    {/*<CustomServerAutoComplete label={'Район'} perPage={5} useLazyGetQuery={'ss'} name={'polygon'}/>*/}
+                    <Paper elevation={3} sx={{width:'100%'}}>
+                        <CustomServerAutoComplete
+                            label={'Район'} perPage={5} useLazyGetQuery={useLazyGetRegionsQuery} name={'polygon'}
+                            optionsConfig={{optionsPath:['response','list'],optionsReadFunction:(value) => value}} />
+                    </Paper>
                     {isPolygonChosen && openNav && <IconButton
                         size="small"
                         style={{marginTop:'0px', background:theme.palette.primary.main}}
@@ -83,7 +128,7 @@ const MapRender:React.FC<Props> = () => {
                             sx={{
                                 background:'white',
                                 width:'100%',
-                                padding:'60px 0 0 0',
+                                padding:'80px 0 0 0',
                                 boxSizing:'border-box',
                                 height:'calc(100vh - 80px)',
 
@@ -102,7 +147,7 @@ const MapRender:React.FC<Props> = () => {
                             <Menu items={sideBarConfig} level={1} callback={setCurrentMenuItem}/>
                         </Box>
                     </Grid>}
-                    <Grid item xs={12 - 3*Number(rearInfoPanel) - 3*Number(openNav)}sx={{
+                    <Grid item xs={12 - 4*Number(rearInfoPanel) - 3*Number(openNav)}sx={{
                         height:'inherit',
                     }}>
                         <MapContainer center={[51.505, -0.09]} zoom={13} zoomControl={false} style={{
@@ -112,21 +157,25 @@ const MapRender:React.FC<Props> = () => {
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
 
+                            {setPolygon && <SetZoom coords={setPolygon}/>}
+
                             <ZoomControl position={"bottomright"}/>
 
                             <MapDrawPolygon name={'drawPolygon'}
                                             defaultValue={null}/>
 
-                            {loadedPolygon && <DistrictPolygon coordinates={[[-10,10],[10,10],[-10,-10]]} properties={{title:'some polygon'}}/>}
+                            {watchPolygonAutocomplete && !watchPolygonDraw && <DistrictPolygon
+                                coordinates={watchPolygonAutocomplete.points.map((point:any) => [point.lat,point.lon])}
+                                properties={{title:'some polygon'}}/>}
                         </MapContainer>
                     </Grid>
-                    {rearInfoPanel && <Grid item xs={3}>
+                    {rearInfoPanel && <Grid item xs={4}>
                         <Box
                             sx={{
                                 position:'relative',
                                 background:'white',
                                 width:'100%',
-                                padding:'60px 0 0 0',
+                                padding:'80px 30px 0 30px',
                                 boxSizing:'border-box',
                                 height:'calc(100vh - 80px)',
                                 overflowY:'scroll',
@@ -145,10 +194,11 @@ const MapRender:React.FC<Props> = () => {
                                         sx={{
                                             position:'absolute',
                                             top:'10px',
-                                            left:'10px'
+                                            right:'10px'
                                         }}>
                                 <CloseIcon />
                             </IconButton>
+                            <InfoPanel baseDigit={100}/>
                         </Box>
                     </Grid>}
                 </Grid>
@@ -157,5 +207,6 @@ const MapRender:React.FC<Props> = () => {
         </FormProvider>
     )
 }
+
 
 export {MapRender}

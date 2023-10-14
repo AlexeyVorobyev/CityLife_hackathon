@@ -7,7 +7,7 @@ import {
     SignUpPayload,
     SignUpResponse
 } from "./types/auth";
-export const templateApi = api.injectEndpoints({
+export const authApi = api.injectEndpoints({
     endpoints: (builder) => ({
         authSignUp: builder.mutation<SignUpResponse,SignUpPayload>({
             query: (body) => ({
@@ -47,4 +47,4 @@ export const {
     useAuthLoginMutation,
     useAuthRefreshMutation,
     useAuthSignUpMutation
-} = templateApi
+} = authApi
