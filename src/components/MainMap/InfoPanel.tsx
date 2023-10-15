@@ -1,4 +1,4 @@
-import {Paper, Stack, Typography} from "@mui/material";
+import {Button, Paper, Stack, Typography} from "@mui/material";
 import React from "react";
 import {Bar} from "react-chartjs-2";
 import {
@@ -12,9 +12,12 @@ import {
 } from 'chart.js';
 import {faker} from "@faker-js/faker";
 import {theme} from "../Theme/customColors";
+import {useNavigate} from "react-router-dom";
 
 
 const InfoPanel:React.FC<any> = ({baseDigit}) => {
+
+    const navigate = useNavigate()
 
     function* generateLabels() {
         const date = new Date()
@@ -125,6 +128,12 @@ const InfoPanel:React.FC<any> = ({baseDigit}) => {
                     </Stack>
                 </Paper>
             ))}
+            <Button
+                variant={'outlined'}
+                onClick={() => {
+                    navigate('../analytics')
+                }}
+            >Подробнее</Button>
         </Stack>
     )
 

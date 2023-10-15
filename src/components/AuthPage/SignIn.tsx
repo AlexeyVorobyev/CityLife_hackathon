@@ -10,13 +10,13 @@ import {LoginResponseCodeDecrypt} from "../../redux/api/types/auth";
 import {useActions} from "../../redux/hooks/useActions";
 import vkSvg from '../../assets/vk.svg'
 import telegramSvg from '../../assets/telegram.svg'
+import {useLoginStatus} from "../functions/useLoginStatus";
 
 const SignIn:React.FC<any> = () => {
 
     const methods = useForm()
     const {handleSubmit, formState: {errors}} = methods
     const [authLogin] = useAuthLoginMutation()
-    const navigate = useNavigate()
     const {setLogin} = useActions()
 
     const onSubmit = (data:any) => {
@@ -33,10 +33,7 @@ const SignIn:React.FC<any> = () => {
                     localStorage.setItem('refreshToken',response.data.response.refreshToken)
                     // @ts-ignore
                     localStorage.setItem('expiry',response.data.response.expiry)
-                    setLogin()
-                    setTimeout(() => {
-                        navigate('/')
-                    },1000)
+                    setLogin(true)
                 }
                 else {
                     // @ts-ignore

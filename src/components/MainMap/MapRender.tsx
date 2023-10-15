@@ -15,6 +15,7 @@ import {sideBarConfig} from "./SideBarConfig";
 import {useLazyGetRegionsQuery} from "../../redux/api/map.api";
 import {useNavigate} from "react-router-dom";
 import {InfoPanel} from "./InfoPanel";
+import {useActions} from "../../redux/hooks/useActions";
 interface Props {
 
 }
@@ -26,11 +27,12 @@ const MapRender:React.FC<Props> = () => {
     const watchPolygonDraw = watch('drawPolygon')
     const [isPolygonChosen,setIsPolygonChosen] = useState<boolean>(false)
     const [openNav,setOpenNav] = useState<boolean>(false)
-    const [rearInfoPanel, setRearInfoPanel] = useState<boolean>(true)
+    const [rearInfoPanel, setRearInfoPanel] = useState<boolean>(false)
     const [currentMenuItem,setCurrentMenuItem] = useState<string | null>(null)
     const [kostyl,setKostyl] = useState<boolean>(true)
     const navigate = useNavigate()
     const [setPolygon,setSetPolygon] = useState<any>(null)
+    const {setCurrentRegion} = useActions()
 
 
     useEffect(() => {
@@ -45,7 +47,7 @@ const MapRender:React.FC<Props> = () => {
     useEffect(() => {
         console.log(kostyl)
         if (watchPolygonDraw && kostyl) {
-            setValue('polygon',{id:watchPolygonDraw.id,name:'Кастомный полигон'})
+            setValue('polygon',{id:watchPolygonDraw.id,name:'Произвольная область'})
             setKostyl(!kostyl)
         }
         else if (!watchPolygonAutocomplete && watchPolygonDraw) {
@@ -58,6 +60,7 @@ const MapRender:React.FC<Props> = () => {
         if (watchPolygonDraw || watchPolygonAutocomplete) {
             setIsPolygonChosen(true)
             setOpenNav(true)
+            if (watchPolygonAutocomplete) setCurrentRegion({currentRegion:watchPolygonAutocomplete?.name})
         }
         if (watchPolygonAutocomplete) {
             setSetPolygon(watchPolygonAutocomplete.points)
@@ -74,7 +77,6 @@ const MapRender:React.FC<Props> = () => {
         if (coords) map.fitBounds(coords)
         return null
     }
-
 
     return (
         <FormProvider {...methods}>
@@ -148,10 +150,12 @@ const MapRender:React.FC<Props> = () => {
                         </Box>
                     </Grid>}
                     <Grid item xs={12 - 4*Number(rearInfoPanel) - 3*Number(openNav)}sx={{
-                        height:'inherit',
+                        height:'100%',
+                        width:'100%'
                     }}>
-                        <MapContainer center={[51.505, -0.09]} zoom={13} zoomControl={false} style={{
-                            height:"inherit"
+                        <MapContainer center={[45.0360, 38.9746]} zoom={12} zoomControl={false} style={{
+                            height:'100%',
+                            width:'inherit'
                         }}>
                             <TileLayer
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -161,8 +165,8 @@ const MapRender:React.FC<Props> = () => {
 
                             <ZoomControl position={"bottomright"}/>
 
-                            <MapDrawPolygon name={'drawPolygon'}
-                                            defaultValue={null}/>
+                            {(!watchPolygonAutocomplete || watchPolygonDraw) && <MapDrawPolygon name={'drawPolygon'}
+                                            defaultValue={null}/>}
 
                             {watchPolygonAutocomplete && !watchPolygonDraw && <DistrictPolygon
                                 coordinates={watchPolygonAutocomplete.points.map((point:any) => [point.lat,point.lon])}
@@ -179,6 +183,7 @@ const MapRender:React.FC<Props> = () => {
                                 boxSizing:'border-box',
                                 height:'calc(100vh - 80px)',
                                 overflowY:'scroll',
+                                zIndex:1000,
                                 '&::-webkit-scrollbar': {
                                     width: '0.4em'
                                 },
