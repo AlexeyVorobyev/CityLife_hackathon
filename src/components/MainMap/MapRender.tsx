@@ -1,6 +1,6 @@
 import {MapContainer, Marker, Popup, TileLayer, useMap, ZoomControl} from 'react-leaflet'
 import {FormProvider, useForm} from "react-hook-form";
-import {Box, Grid, IconButton, Paper, Stack, Typography} from "@mui/material";
+import {Box, CircularProgress, Grid, IconButton, Paper, Stack, Typography} from "@mui/material";
 import React, {useEffect, useLayoutEffect, useState} from "react";
 import {DistrictPolygon} from "./DistrictPolygon";
 import {CustomServerAutoComplete} from "../formUtils/CustomServerAutocomplete/CustomServerAutoComplete";
@@ -166,16 +166,19 @@ const MapRender:React.FC<Props> = () => {
     const [points,setPoints] = useState<any>(null)
     const [algorythm,setAlgorythm] = useState<any>(null)
     const [types,setTypes] = useState<any>(null)
+    const [goCircle,setGoCircle] = useState<boolean>(false)
 
     useEffect(() => {
         if (watchFilter) {
             console.log(watchFilter)
             console.log(watchPolygonAutocomplete)
             if (watchPolygonAutocomplete) {
+                setGoCircle(true)
                 getPoints({json:JSON.stringify(watchPolygonAutocomplete.points),category:watchFilter.id})
                     .then((response:any) => {
                         console.log(response,'filters_res')
                         setPoints(response.data.response.points)
+                        setGoCircle(false)
                     })
             }
         }
@@ -314,8 +317,10 @@ const MapRender:React.FC<Props> = () => {
                     </Grid>}
                     <Grid item xs={12 - 4*Number(rearInfoPanel) - 3*Number(openNav)}sx={{
                         height:'100%',
-                        width:'100%'
+                        width:'100%',
+                        position:'relative'
                     }}>
+                        {goCircle && <CircularProgress sx={{position:'absolute',top:'10px',left:'10px',zIndex:1000000}}/>}
                         <MapContainer center={[45.0360, 38.9746]} zoom={12} zoomControl={false} style={{
                             height:'100%',
                             width:'inherit'
