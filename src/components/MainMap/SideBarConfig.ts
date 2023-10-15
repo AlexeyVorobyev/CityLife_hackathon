@@ -88,23 +88,6 @@ export const sideBarConfig:ItemTree[] = [
         ]
     },
     {
-        title: 'Благоустройство',
-        items: [
-            {
-                title: 'Досуг',
-            },
-            {
-                title: 'Достапримечательности',
-            },
-            {
-                title: 'Бизнес',
-            },
-            {
-                title: 'Общественный транспорт',
-            },
-        ]
-    },
-    {
         title: 'Климат',
         items: [
             {

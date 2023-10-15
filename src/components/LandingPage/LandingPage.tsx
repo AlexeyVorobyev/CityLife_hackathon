@@ -1,10 +1,8 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {MapRender} from "../MainMap/MapRender";
 import {Box, Button, IconButton, Paper, Popover, Stack, Typography} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import {useLoginStatus} from "../functions/useLoginStatus";
-import {useNavigate} from "react-router-dom";
 import {useActions} from "../../redux/hooks/useActions";
 
 const LandingPage:React.FC = () => {
@@ -17,7 +15,6 @@ const LandingPage:React.FC = () => {
     };
 
     const {setLogin} = useActions()
-    const navigate = useNavigate()
 
     return (
         <Box sx={{

@@ -7,11 +7,44 @@ export const mapApi = api.injectEndpoints({
                 url:`/api/region/find/?name=${settings.name}&page=${settings.page}&size=${settings.size}`,
                 method: 'GET',
             }),
+        }),
+        getPoints: builder.mutation<any,{json:string,category:string}>({
+            query: (body) => ({
+                url:`/api/point/search_points`,
+                method: 'POST',
+                headers: {
+                    'Content-Type':'application/json'
+                },
+                body
+            }),
+        }),
+        getAlgorithm: builder.mutation<any,{json:string}>({
+            query: (body) => ({
+                url:`/api/point/algorithm`,
+                method: 'POST',
+                headers: {
+                    'Content-Type':'application/json'
+                },
+                body
+            }),
+        }),
+        getTypes: builder.mutation<any,{json:string}>({
+            query: (body) => ({
+                url:`/api/point/type`,
+                method: 'POST',
+                headers: {
+                    'Content-Type':'application/json'
+                },
+                body
+            }),
         })
     }),
     overrideExisting:false
 })
 
 export const {
-    useLazyGetRegionsQuery
+    useLazyGetRegionsQuery,
+    useGetPointsMutation,
+    useGetAlgorithmMutation,
+    useGetTypesMutation
 } = mapApi

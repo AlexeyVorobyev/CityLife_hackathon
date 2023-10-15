@@ -1,4 +1,4 @@
-import {Button, Paper, Stack, Typography} from "@mui/material";
+import {Button, Divider, Paper, Stack, Typography} from "@mui/material";
 import React from "react";
 import {Bar} from "react-chartjs-2";
 import {
@@ -15,7 +15,7 @@ import {theme} from "../Theme/customColors";
 import {useNavigate} from "react-router-dom";
 
 
-const InfoPanel:React.FC<any> = ({baseDigit}) => {
+const InfoPanel:React.FC<any> = ({baseDigit,algorythm,currentMenuItem}) => {
 
     const navigate = useNavigate()
 
@@ -108,34 +108,67 @@ const InfoPanel:React.FC<any> = ({baseDigit}) => {
         ]
     }
 
-    return (
-        <Stack direction={'column'} alignItems={'stretch'} spacing={'20px'}>
-            <Paper elevation={3} sx={{
-                padding:'25px',
-            }}>
-                <Bar
-                    style={{
-                        width:'100%',
-                    }}
-                    options={options}
-                    data={data}/>
-            </Paper>
-            {mapParams.map((param) => (
-                <Paper elevation={2} sx={{padding:'10px 0px 10px 20px'}}>
-                    <Stack direction={'row'} spacing={'20px'} alignItems={'center'}>
-                        <Typography variant={'subtitle1'}>{param.title}</Typography>
-                        <Typography variant={'subtitle2'}>{param.res}</Typography>
-                    </Stack>
+    if (['Рекомендации'].includes(currentMenuItem)) {
+        console.log(algorythm)
+        return (
+            <Stack direction={'column'} alignItems={'stretch'} spacing={'20px'}>
+                <Typography variant={'h5'}>Некорректные места:</Typography>
+                <Stack direction={'column'} sx={{maxHeight:'200px', overflowY:'scroll'}}>
+                    {algorythm && algorythm.invalidPoints.map((point:any,index:number) => {
+                        return (
+                            <>
+                                <Typography variant={'subtitle1'}>{(index + 1) + '. ' + point.properties.name}</Typography>
+                                <Typography variant={'subtitle1'}>{'Адрес: ' + index + '. '+point.properties.formatted}</Typography>
+                                <Divider/>
+                            </>
+                            )
+                    })}
+                </Stack>
+                {algorythm.prohibitedPoints?.length ? (<Typography variant={'h5'}>Нелегальные места:</Typography>) : null}
+                <Stack direction={'column'} sx={{maxHeight:'200px', overflowY:'scroll'}}>
+                    {algorythm && algorythm.prohibitedPoints.map((point:any,index:number) => {
+                        return (
+                            <>
+                                <Typography variant={'subtitle1'}>{(index + 1) + '. ' + point.properties.name}</Typography>
+                                <Typography variant={'subtitle1'}>{'Адрес: ' + index + '. '+point.properties.formatted}</Typography>
+                                <Divider/>
+                            </>
+                        )
+                    })}
+                </Stack>
+                {algorythm && <Typography variant={'h5'}>Балл: {algorythm.scope}</Typography>}
+            </Stack>)
+    }
+    else {
+        return (
+            <Stack direction={'column'} alignItems={'stretch'} spacing={'20px'}>
+                <Paper elevation={3} sx={{
+                    padding:'25px',
+                }}>
+                    <Bar
+                        style={{
+                            width:'100%',
+                        }}
+                        options={options}
+                        data={data}/>
                 </Paper>
-            ))}
-            <Button
-                variant={'outlined'}
-                onClick={() => {
-                    navigate('../analytics')
-                }}
-            >Подробнее</Button>
-        </Stack>
-    )
+                {mapParams.map((param) => (
+                    <Paper elevation={2} sx={{padding:'10px 0px 10px 20px'}}>
+                        <Stack direction={'row'} spacing={'20px'} alignItems={'center'}>
+                            <Typography variant={'subtitle1'}>{param.title}</Typography>
+                            <Typography variant={'subtitle2'}>{param.res}</Typography>
+                        </Stack>
+                    </Paper>
+                ))}
+                <Button
+                    variant={'outlined'}
+                    onClick={() => {
+                        navigate('../analytics')
+                    }}
+                >Подробнее</Button>
+            </Stack>
+        )
+    }
 
 }
 

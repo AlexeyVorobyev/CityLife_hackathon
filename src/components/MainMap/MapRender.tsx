@@ -1,7 +1,7 @@
-import {FeatureGroup, MapContainer, Polygon, TileLayer, useMap, ZoomControl} from 'react-leaflet'
+import {MapContainer, Marker, Popup, TileLayer, useMap, ZoomControl} from 'react-leaflet'
 import {FormProvider, useForm} from "react-hook-form";
 import {Box, Grid, IconButton, Paper, Stack, Typography} from "@mui/material";
-import React, {useEffect, useLayoutEffect, useMemo, useReducer, useState} from "react";
+import React, {useEffect, useLayoutEffect, useState} from "react";
 import {DistrictPolygon} from "./DistrictPolygon";
 import {CustomServerAutoComplete} from "../formUtils/CustomServerAutocomplete/CustomServerAutoComplete";
 import CloseIcon from '@mui/icons-material/Close';
@@ -12,10 +12,135 @@ import {MapDrawPolygon} from "./MapDrawPolygon";
 import {theme} from "../Theme/customColors";
 import {Menu} from "./SideBar";
 import {sideBarConfig} from "./SideBarConfig";
-import {useLazyGetRegionsQuery} from "../../redux/api/map.api";
+import {
+    useGetAlgorithmMutation,
+    useGetPointsMutation,
+    useLazyGetPointsQuery,
+    useLazyGetRegionsQuery
+} from "../../redux/api/map.api";
 import {useNavigate} from "react-router-dom";
 import {InfoPanel} from "./InfoPanel";
 import {useActions} from "../../redux/hooks/useActions";
+import {CustomSelect} from "../formUtils/CustomSelect/CustomSelect";
+import MarkerClusterGroup from '@changey/react-leaflet-markercluster';
+import '@changey/react-leaflet-markercluster/dist/styles.min.css';
+
+const selectFilterOptions = [
+    {
+        id:"commercial.health_and_beauty",
+        name:"Красота и здоровье",
+    },
+    {
+        id:"commercial.food_and_drink",
+        name:"Еда и напитки",
+    },
+    {
+        id:"commercial.outdoor_and_sport",
+        name:"Активный отдых и спорт",
+    },
+    {
+        id:"education",
+        name:"Образование",
+    },
+    {
+        id:"childcare.kindergarten",
+        name:"Детские сады",
+    },
+    {
+        id:"natural",
+        name:"Природа",
+    },
+    {
+        id:"entertainment.culture",
+        name:"Культура",
+    },
+    {
+        id:"healthcare",
+        name:"Здравоохранение",
+    },
+    {
+        id:"leisure",
+        name:"Досуг",
+    },
+    {
+        id:"national_park",
+        name:"Парки",
+    },
+    {
+        id:"building.university",
+        name:"Университеты",
+    },
+    {
+        id:"building.college",
+        name:"Колледжи",
+    },
+    {
+        id:"building.school",
+        name:"Школа",
+    },
+    {
+        id:"building.sport",
+        name:"Спорт",
+    },
+    {
+        id:"building.spa",
+        name:"Спа-центры",
+    },
+    {
+        id:"heritage",
+        name:"Общественное достояние",
+    },
+    {
+        id:"activity.sport_club",
+        name:"Спортивные клубы",
+    },
+    {
+        id:"sport",
+        name:"Спорт",
+    },
+    {
+        id:"commercial.smoking",
+        name:"Табачные магазины",
+    },
+    {
+        id:"commercial.weapons",
+        name:"Охотничьи магазины",
+    },
+    {
+        id:"catering.fast_food",
+        name:"Фаст-фуд",
+    },
+    {
+        id:"catering.bar",
+        name:"Бары",
+    },
+    {
+        id:"catering.pub",
+        name:"Пабы",
+    },
+    {
+        id:"catering.taproom",
+        name:"Пивная",
+    },
+    {
+        id:"adult",
+        name:"Для взрослых",
+    },
+    {
+        id:"building.prison",
+        name:"Тюрьмы",
+    },
+    {
+        id:"production.brewery",
+        name:"Пивоварни",
+    },
+    {
+        id:"production.winery",
+        name:"Винодельни",
+    },
+]
+
+
 interface Props {
 
 }
@@ -25,6 +150,7 @@ const MapRender:React.FC<Props> = () => {
     const {watch, setValue} = methods
     const watchPolygonAutocomplete = watch('polygon')
     const watchPolygonDraw = watch('drawPolygon')
+    const watchFilter = watch('filter')
     const [isPolygonChosen,setIsPolygonChosen] = useState<boolean>(false)
     const [openNav,setOpenNav] = useState<boolean>(false)
     const [rearInfoPanel, setRearInfoPanel] = useState<boolean>(false)
@@ -33,7 +159,37 @@ const MapRender:React.FC<Props> = () => {
     const navigate = useNavigate()
     const [setPolygon,setSetPolygon] = useState<any>(null)
     const {setCurrentRegion} = useActions()
+    const [getPoints] = useGetPointsMutation()
+    const [getAlgorythm] = useGetAlgorithmMutation()
+    const [getTypes] = useGetAlgorithmMutation()
 
+    const [points,setPoints] = useState<any>(null)
+    const [algorythm,setAlgorythm] = useState<any>(null)
+    const [types,setTypes] = useState<any>(null)
+
+    useEffect(() => {
+        if (watchFilter) {
+            console.log(watchFilter)
+            console.log(watchPolygonAutocomplete)
+            if (watchPolygonAutocomplete) {
+                getPoints({json:JSON.stringify(watchPolygonAutocomplete.points),category:watchFilter.id})
+                    .then((response:any) => {
+                        console.log(response,'filters_res')
+                        setPoints(response.data.response.points)
+                    })
+            }
+        }
+    },[watchFilter,watchPolygonAutocomplete])
+
+    useEffect(() => {
+        if (watchPolygonAutocomplete) {
+            getAlgorythm({json:JSON.stringify(watchPolygonAutocomplete.points)})
+                .then((response:any) => {
+                    console.log(response,'algo_rec')
+                    setAlgorythm(response.data.response)
+                })
+        }
+    },[watchPolygonAutocomplete])
 
     useEffect(() => {
         if (currentMenuItem) {
@@ -44,10 +200,12 @@ const MapRender:React.FC<Props> = () => {
         }
     },[currentMenuItem])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         console.log(kostyl)
         if (watchPolygonDraw && kostyl) {
-            setValue('polygon',{id:watchPolygonDraw.id,name:'Произвольная область'})
+            console.log(watchPolygonDraw,'adadadad')
+            console.log(watchPolygonDraw.geoData?.geometry?.coordinates,'adadadad')
+            setValue('polygon',{id:watchPolygonDraw.id,name:'Произвольная область',points:watchPolygonDraw.geoData?.geometry?.coordinates.map((pair:[number,number]) => {return {lat:pair[0],lon:pair[1]}})})
             setKostyl(!kostyl)
         }
         else if (!watchPolygonAutocomplete && watchPolygonDraw) {
@@ -56,7 +214,7 @@ const MapRender:React.FC<Props> = () => {
         }
     },[watchPolygonDraw,watchPolygonAutocomplete])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (watchPolygonDraw || watchPolygonAutocomplete) {
             setIsPolygonChosen(true)
             setOpenNav(true)
@@ -96,11 +254,16 @@ const MapRender:React.FC<Props> = () => {
                     marginLeft:'20px',
                     alignItems:'center'
                 }}>
-                    <Paper elevation={3} sx={{width:'100%'}}>
-                        <CustomServerAutoComplete
-                            label={'Район'} perPage={5} useLazyGetQuery={useLazyGetRegionsQuery} name={'polygon'}
-                            optionsConfig={{optionsPath:['response','list'],optionsReadFunction:(value) => value}} />
-                    </Paper>
+                    <Stack direction={'column'} spacing={2} sx={{width:'100%'}}>
+                        <Paper elevation={3} sx={{width:'100%'}}>
+                            <CustomServerAutoComplete
+                                label={'Район'} perPage={5} useLazyGetQuery={useLazyGetRegionsQuery} name={'polygon'}
+                                optionsConfig={{optionsPath:['response','list'],optionsReadFunction:(value) => value}} />
+                        </Paper>
+                        {openNav && <Paper elevation={3} sx={{width:'100%',top:'100px'}}>
+                            <CustomSelect name={'filter'} options={selectFilterOptions} label={'Фильтр'}/>
+                        </Paper>}
+                    </Stack>
                     {isPolygonChosen && openNav && <IconButton
                         size="small"
                         style={{marginTop:'0px', background:theme.palette.primary.main}}
@@ -130,7 +293,7 @@ const MapRender:React.FC<Props> = () => {
                             sx={{
                                 background:'white',
                                 width:'100%',
-                                padding:'80px 0 0 0',
+                                padding:'180px 0 0 0',
                                 boxSizing:'border-box',
                                 height:'calc(100vh - 80px)',
 
@@ -160,6 +323,21 @@ const MapRender:React.FC<Props> = () => {
                             <TileLayer
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
+
+                            <MarkerClusterGroup>
+                                {points && points.map((point:any) => {
+                                    return (
+                                        <Marker position={[point.properties.lat,point.properties.lon]}>
+                                            <Popup>
+                                                <Paper sx={{padding:'20px'}}>
+                                                    <Typography>{point.properties.name}</Typography>
+                                                </Paper>
+                                            </Popup>
+                                        </Marker>
+                                    )
+                                })}
+                            </MarkerClusterGroup>
+
 
                             {setPolygon && <SetZoom coords={setPolygon}/>}
 
@@ -203,7 +381,7 @@ const MapRender:React.FC<Props> = () => {
                                         }}>
                                 <CloseIcon />
                             </IconButton>
-                            <InfoPanel baseDigit={100}/>
+                            <InfoPanel baseDigit={100} currentMenuItem={currentMenuItem} algorythm={algorythm}/>
                         </Box>
                     </Grid>}
                 </Grid>
